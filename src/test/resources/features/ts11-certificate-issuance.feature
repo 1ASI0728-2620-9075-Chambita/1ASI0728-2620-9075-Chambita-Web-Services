@@ -29,3 +29,11 @@ Feature: TS11 · Certificate issuance from the backend
     And the response field "$.status" is "ISSUED"
     And the response does not contain "Valeria"
     And the response does not contain "{ValeriaEmail}"
+
+  Scenario: The client sees the issued certificates of the student (US15)
+    Given "Rosa" rated "Valeria" with 5 stars
+    And the certificate of "Valeria" is "ISSUED"
+    When "Rosa" sends a GET request to "/api/v1/students/{Valeria}/certificates"
+    Then the response status is 200
+    And the response list "$" has 1 items
+    And the response field "$[0].status" is "ISSUED"
