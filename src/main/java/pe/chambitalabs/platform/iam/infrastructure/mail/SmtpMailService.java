@@ -20,11 +20,15 @@ public class SmtpMailService implements MailService {
 
     private final ObjectProvider<JavaMailSender> mailSender;
     private final String from;
+    private final boolean smtpConfigured;
 
     public SmtpMailService(ObjectProvider<JavaMailSender> mailSender,
-                           @Value("${chambita.mail.from:no-reply@chambita.pe}") String from) {
+                           @Value("${chambita.mail.from:no-reply@chambita.pe}") String from,
+                           @Value("${spring.mail.host:}") String smtpHost) {
         this.mailSender = mailSender;
         this.from = from;
+        // An empty SMTP_HOST still creates a JavaMailSender, so the host itself decides.
+        this.smtpConfigured = !smtpHost.isBlank();
     }
 
     @Override
@@ -42,7 +46,7 @@ public class SmtpMailService implements MailService {
                 Chambita
                 """.formatted(fullName, code, code);
         var sender = mailSender.getIfAvailable();
-        if (sender == null) {
+        if (sender == null || !smtpConfigured) {
             LOGGER.info("SMTP not configured. Verification code for {}: {}", to, code);
             return;
         }
