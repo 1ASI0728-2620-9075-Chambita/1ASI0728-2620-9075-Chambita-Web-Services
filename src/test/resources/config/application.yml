@@ -1,0 +1,7 @@
+# Values for the automated tests only (production reads them from environment variables).
+chambita:
+  security:
+    jwt:
+      secret: dGVzdC1vbmx5LXNlY3JldC1rZXktZm9yLWNoYW1iaXRhLWF1dG9tYXRlZC10ZXN0cw==
+  jobs:
+    secret: test-cron-secret
