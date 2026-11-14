@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pe.chambitalabs.platform.certification.application.internal.commandservices.CertificateCommandService;
 import pe.chambitalabs.platform.certification.application.internal.outboundservices.BlockchainCertificateRegistry;
 import pe.chambitalabs.platform.certification.domain.model.aggregates.Certificate;
+import pe.chambitalabs.platform.certification.domain.model.valueobjects.CertificateStatus;
 import pe.chambitalabs.platform.certification.domain.model.commands.CertificateCommands.RevokeCertificateCommand;
 import pe.chambitalabs.platform.certification.infrastructure.persistence.jpa.repositories.CertificateRepository;
 import pe.chambitalabs.platform.certification.interfaces.rest.resources.CertificateResource;
@@ -44,14 +45,17 @@ public class CertificatesController {
     }
 
     @GetMapping("/api/v1/students/{studentId}/certificates")
-    @Operation(summary = "Lists the certificates of the authenticated student with their status")
+    @Operation(summary = "Lists the certificates of a student: all of them for the holder, only issued ones for others")
     public List<CertificateResource> byStudent(@PathVariable UUID studentId,
                                                @AuthenticationPrincipal AuthenticatedUser principal) {
-        if (!studentId.equals(principal.id())) {
-            throw new ForbiddenException("certification.owner-required");
+        if (studentId.equals(principal.id())) {
+            commandService.refreshPendingOf(studentId);
+            return repository.findByStudentIdOrderByIssuedAtDesc(studentId).stream().map(this::toResource).toList();
         }
-        commandService.refreshPendingOf(studentId);
-        return repository.findByStudentIdOrderByIssuedAtDesc(studentId).stream().map(this::toResource).toList();
+        // Clients deciding whether to hire the student only see issued certificates (US15).
+        return repository.findByStudentIdOrderByIssuedAtDesc(studentId).stream()
+                .filter(certificate -> certificate.getStatus() == CertificateStatus.ISSUED)
+                .map(this::toResource).toList();
     }
 
     @GetMapping("/api/v1/certificates/{certificateId}")
