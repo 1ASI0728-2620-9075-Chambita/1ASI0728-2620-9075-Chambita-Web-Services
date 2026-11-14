@@ -50,6 +50,12 @@ Requirements: JDK 21 or newer and PostgreSQL. Set the variables listed in `.env.
 ./mvnw spring-boot:run
 ```
 
+To try the API without installing PostgreSQL, run it with an embedded database and test secrets:
+
+```bash
+./mvnw spring-boot:test-run
+```
+
 Without SMTP, verification codes are written to the log. Without the blockchain variables, certificates stay `PENDING`
 until they are configured; the daily job retries them.
 

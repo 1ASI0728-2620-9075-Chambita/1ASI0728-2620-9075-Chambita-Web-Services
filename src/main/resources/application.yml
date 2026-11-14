@@ -51,6 +51,10 @@ management:
     health:
       probes:
         enabled: true
+  health:
+    # SMTP is optional (codes go to the log without it), so it must not mark the API as DOWN.
+    mail:
+      enabled: false
 
 springdoc:
   swagger-ui:
