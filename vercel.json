@@ -2,6 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "container",
   "crons": [
-    { "path": "/internal/jobs/daily", "schedule": "0 10 * * *" }
+    {
+      "path": "/internal/jobs/daily",
+      "schedule": "0 10 * * *"
+    }
+  ],
+  "regions": [
+    "gru1"
   ]
 }
