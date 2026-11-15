@@ -12,11 +12,8 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 # Extracted layout (application jar + lib/) starts faster than the nested fat jar.
 COPY --from=build /workspace/extracted/ ./
-# Faster start-up after scaling to zero (QA06): serial GC, C1 only, lazy beans, no schema validation in production.
+# Faster start-up after scaling to zero (QA06): serial GC and C1 only; see application-production.yml.
 ENV JAVA_TOOL_OPTIONS="-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:MaxRAMPercentage=75 -Xss512k -Duser.timezone=UTC" \
-    LAZY_INITIALIZATION=true \
-    JPA_DDL_AUTO=none \
-    JPA_JDBC_METADATA_ACCESS=false \
-    DATABASE_POOL_SIZE=3
+    SPRING_PROFILES_ACTIVE=production
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/app/chambita-platform.jar"]
